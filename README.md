@@ -1,6 +1,6 @@
-# inversespace
+# GTD-Todo
 
-A [re-frame](https://github.com/Day8/re-frame) application designed to ... well, that part is up to you.
+A [re-frame](https://github.com/Day8/re-frame) todo-application with the goal of implementing the workflow laid-out in David Allen's [The Art of Getting Things Done](http://gettingthingsdone.com/).
 
 ## Development Mode
 
