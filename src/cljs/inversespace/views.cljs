@@ -34,10 +34,7 @@
                        (re-frame/dispatch [:change-project value])))}
        (for [proj plist]
          ^{:key (:id proj)} 
-
-         [:option 
-          {:value (:id proj)} 
-          (:title proj)])]))
+         [:option {:value (:id proj)} (:title proj)])]))
 
 (defn todo-input [{:keys [title on-save on-stop]}]
   (let [value (r/atom title)
@@ -65,33 +62,64 @@
     (fn [{:keys [title id parent done]}]
       [:li 
        (when (false? @editing) 
+         [:div 
          [:span.title 
             {:on-double-click #(swap! editing not)} 
             title]
-         [:div 
-          [:small "done?"]
-          [:input (into {:type :checkbox}
-                    (if (true? done) {:checked :checked}))]])
+          [:input {:type :checkbox
+                         :on-change #(re-frame/dispatch 
+                                       [:item-completed (-> % .-target .-checked) parent id])
+                   :checked done}]])
        (when @editing 
          [todo-input 
           { :title title 
-            :on-save #(do (println "title: " % " parent: " parent " id: " id)
-                        (re-frame/dispatch [:save-item % parent id]))
+            :on-save #(re-frame/dispatch [:save-item % parent id])
             :on-stop #(reset! editing false)}])])))
 
-(defn new-task-button []
-  (let [lastid @(re-frame/subscribe [:last-id])]
-    (println "last id: " lastid)
-    [:button 
-     {:on-click #(js/console.log (-> % .-target)) }
-     "New Task"]))
+(defn button [{:keys [on-click label]}]
+  [:button 
+    {:on-click #(on-click)}
+    label])
 
-(defn project-view []
-  (let [ptasks @(re-frame/subscribe [:project-tasks])]
-    [:ul
-     (for [task ptasks]
-       ^{:key (first task)}
-       [todo-item (last task)])]))
+(defn new-task-panel [{:keys [viewstate]}]
+  (let [plist @(re-frame/subscribe [:project-list])
+        selected (int @(re-frame/subscribe [:current-project]))
+        title (r/atom "new-todo")]
+    (fn []
+    [:div 
+      ;project
+      [project-list]
+      ;title
+      [:h3 "Title"]
+      [:input {:id "new-item-title" :type :text
+               :value @title
+               :auto-focus true
+               :on-change #(reset! title (-> % .-target .-value))
+               :on-focus #(-> % .-target .select)}]
+      ;due-date?
+      ;cancel-button
+      [button {:label "cancel"
+              :on-click #(reset! viewstate :project)}]
+      ;create-button
+      [button {:label "create"
+              :on-click #(do (re-frame/dispatch [:new-item @title selected]) 
+                             (reset! viewstate :project))}]
+    ])))
+
+(defn project-todo-list []
+  (let [ptasks (re-frame/subscribe [:project-tasks])]
+    (fn []
+      [:ul
+      (for [task @ptasks]
+        ^{:key (first task)}
+        [todo-item (last task)])])))
+
+(defn project-view [{:keys [viewstate]}]
+  [:div.project
+    [button {:label "new task"
+             :on-click #(reset! viewstate :new-task)}]
+    [project-list]
+    [project-todo-list]])
 
 (defn main-panel []
   (let [viewstate (r/atom :project)]
@@ -99,8 +127,9 @@
       [:div.main-panel
       (case @viewstate
         :project
-        [:div.project
-          [project-list]
-          [project-view]]
-          ;[new-task-button]
+          [project-view 
+           {:viewstate viewstate}]
+        :new-task 
+          [new-task-panel {:viewstate viewstate}]
         )])))
+

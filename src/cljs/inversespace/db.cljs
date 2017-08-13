@@ -27,9 +27,11 @@
 (s/def ::db (s/keys :req-un [::projects ::showing]))
 
 (def default-db
-  {:projects {0 {:id 0 :title "Collect" :todos {1 {:id 1 :parent 0 :title "collect items here" :done true}
-                                                2 {:id 2 :parent 0 :title "delete or edit these ones" :done false}}}
-              1 {:id 1 :title "General" :todos {1 {:id 1 :parent 1 :title "get stuff done" :done false}}}}
+  {:projects {0 {:id 0 :title "Collect" 
+                 :todos {1 {:id 1 :parent 0 :title "collect items here" :done true}
+                         2 {:id 2 :parent 0 :title "delete or edit these ones" :done false}}}
+              1 {:id 1 :title "General" 
+                 :todos {1 {:id 1 :parent 1 :title "get stuff done" :done false}}}}
    :current-project 0
    :name "max"
    ;TODO :profile {:name "max"}
@@ -40,3 +42,8 @@
 ;
 ; TODO Elaborate on the generator 
 ; https://clojure.org/guides/spec#_custom_generators
+(defn new-task [title id parent]
+  {:title title
+   :id id
+   :parent parent
+   :done false})
