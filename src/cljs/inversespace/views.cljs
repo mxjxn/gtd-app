@@ -59,17 +59,16 @@
      
 (defn todo-item []
   (let [editing (r/atom false)]
-    (fn [{:keys [title id parent done]}]
-      [:li 
+    (fn [{:keys [title id parent done cl]}]
+      [:li {:class cl}
        (when (false? @editing) 
-         [:div 
-         [:span.title 
-            {:on-double-click #(swap! editing not)} 
-            title]
+         [:div.title 
           [:input {:type :checkbox
-                         :on-change #(re-frame/dispatch 
-                                       [:item-completed (-> % .-target .-checked) parent id])
-                   :checked done}]])
+                   :on-change #(re-frame/dispatch [:item-completed (-> % .-target .-checked) parent id])
+                   :checked done}]
+          [:span
+           {:on-double-click #(swap! editing not)} 
+           title]])
        (when @editing 
          [todo-input 
           { :title title 
@@ -109,22 +108,28 @@
 (defn project-todo-list []
   (let [ptasks (re-frame/subscribe [:project-tasks])]
     (fn []
-      [:ul
+      [:ul.project-list
       (for [task @ptasks]
+        (let [taskmap (into (last task) 
+                            {:cl (if (even? (first task)) "even" "odd")})]
         ^{:key (first task)}
-        [todo-item (last task)])])))
+        [todo-item taskmap]))])))
 
 (defn project-view [{:keys [viewstate]}]
-  [:div.project
-    [button {:label "new task"
-             :on-click #(reset! viewstate :new-task)}]
-    [project-list]
-    [project-todo-list]])
+  (let [project-id (re-frame/subscribe [:current-project])]
+    (fn []
+      [:div.project
+        [button {:label "new task"
+                 :on-click #(reset! viewstate :new-task)}]
+        [project-list]
+        [project-todo-list]
+        [button {:label "clear completed"
+                 :on-click #(re-frame/dispatch [:clear-completed @project-id])}]])))
 
 (defn main-panel []
   (let [viewstate (r/atom :project)]
     (fn []
-      [:div.main-panel
+      [:div.main-panel.col-sm-6.col-sm-offset-3
       (case @viewstate
         :project
           [project-view 

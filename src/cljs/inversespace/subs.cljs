@@ -18,6 +18,7 @@
   :<- [:projects]
   :<- [:current-project]
   (fn [[projects current] _]
+    ;(cljs.pprint/pprint (get projects (int current)))
     (:todos (into {} (get projects (int current))))))
 
 (re-frame/reg-sub
@@ -39,5 +40,8 @@
   :last-id
   :<- [:project-tasks]
   (fn [tasks]
-    (reduce #(if (> %1 %2) %1 %2)
-      (map #(-> % last :id) tasks))))
+    (println 
+      (reduce #(if (> %1 %2) %1 %2)
+        (map #(-> % last :id) tasks)))
+      (reduce #(if (> %1 %2) %1 %2)
+        (map #(-> % last :id) tasks))))

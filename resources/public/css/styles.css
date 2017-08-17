@@ -1,0 +1,26 @@
+ul.project-list {
+  position:relative;
+  padding-left:0;
+  list-style-type:none;
+}
+ul.project-list li > *{
+  padding:5px;
+  clear:left;
+}
+
+ul.project-list li{
+}
+ul.project-list li.even{background:#aba;}
+ul.project-list li.odd{background:#bcb;}
+ul.project-list li input[type=checkbox] {
+  -ms-transform:scale(2);
+  -moz-transform:scale(2);
+  -webkit-transform:scale(2);
+  -o-transform:scale(2);
+  margin:10px;
+}
+ul.project-list li span {
+  display: block;
+  border:1px dashed #999;
+}
+div.title{ font-size:1.3em;}

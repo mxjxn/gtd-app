@@ -22,8 +22,8 @@
     (let [tasks (-> db :projects (get project-id) :todos)
           new-id (inc
                    (reduce #(if (> %1 %2) %1 %2)
-                    (map #(-> % last :id) tasks)))] 
-      (println "new id: " new-id)
+                    (map #(-> % last :id) tasks)))
+          new-id (if (int? new-id) new-id 0)] 
       (assoc-in db 
                 [:projects project-id :todos new-id] 
                 (invdb/new-task title new-id project-id)))))
@@ -35,6 +35,20 @@
   (fn [db [checked project-id task-id]]
     (assoc-in db [:projects project-id :todos task-id :done] checked)))
 
+(reg-event-db
+  :clear-completed
+  [check-spec-interceptor trim-v]
+  (fn [db [project-id]]
+    (let [id (int project-id)
+          tasks (-> db :projects (get id) :todos)]
+      (->> tasks
+        (filter #(:done (last %)))
+        (vec)
+        (map #(first %))
+        (apply dissoc tasks)
+        (into {})
+        (assoc-in db [:projects id :todos])))))
+    
 (reg-event-db
   :save-item
   [check-spec-interceptor trim-v]
