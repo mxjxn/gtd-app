@@ -33,8 +33,8 @@
                      (let [value (-> evt .-target .-value)]
                        (re-frame/dispatch [:change-project value])))}
        (for [proj plist]
-         ^{:key (:id proj)} 
-         [:option {:value (:id proj)} (:title proj)])]))
+         ^{:key (:index proj)} 
+         [:option {:value (:index proj)} (:title proj)])]))
 
 (defn todo-input [{:keys [title on-save on-stop]}]
   (let [value (r/atom title)
@@ -59,12 +59,12 @@
      
 (defn todo-item []
   (let [editing (r/atom false)]
-    (fn [{:keys [title id parent done cl]}]
+    (fn [{:keys [title index parent done cl]}]
       [:li {:class cl}
        (when (false? @editing) 
          [:div.title 
           [:input {:type :checkbox
-                   :on-change #(re-frame/dispatch [:item-completed (-> % .-target .-checked) parent id])
+                   :on-change #(re-frame/dispatch [:item-completed (-> % .-target .-checked) parent index])
                    :checked done}]
           [:span
            {:on-double-click #(swap! editing not)} 
@@ -72,7 +72,7 @@
        (when @editing 
          [todo-input 
           { :title title 
-            :on-save #(re-frame/dispatch [:save-item % parent id])
+            :on-save #(re-frame/dispatch [:save-item % parent index])
             :on-stop #(reset! editing false)}])])))
 
 (defn button [{:keys [on-click label]}]
@@ -116,7 +116,7 @@
         [todo-item taskmap]))])))
 
 (defn project-view [{:keys [viewstate]}]
-  (let [project-id (re-frame/subscribe [:current-project])]
+  (let [project-index (re-frame/subscribe [:current-project])]
     (fn []
       [:div.project
         [button {:label "new task"
@@ -124,7 +124,7 @@
         [project-list]
         [project-todo-list]
         [button {:label "clear completed"
-                 :on-click #(re-frame/dispatch [:clear-completed @project-id])}]])))
+                 :on-click #(re-frame/dispatch [:clear-completed @project-index])}]])))
 
 (defn main-panel []
   (let [viewstate (r/atom :project)]

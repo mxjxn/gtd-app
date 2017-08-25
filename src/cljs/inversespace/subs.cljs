@@ -27,7 +27,7 @@
   (fn [projects _]
    (map 
      #(hash-map 
-        :id (first %) 
+        :index (first %) 
         :title (get (last %) :title)) 
      projects)))
 
@@ -37,11 +37,11 @@
     (:name db)))
 
 (re-frame/reg-sub
-  :last-id
+  :last-index
   :<- [:project-tasks]
   (fn [tasks]
     (println 
       (reduce #(if (> %1 %2) %1 %2)
-        (map #(-> % last :id) tasks)))
+        (map #(-> % last :index) tasks)))
       (reduce #(if (> %1 %2) %1 %2)
-        (map #(-> % last :id) tasks))))
+        (map #(-> % last :index) tasks))))
