@@ -24,8 +24,9 @@
   [(inject-cofx :local-storage)
    check-spec-interceptor]
  (fn [{:keys [db local-storage]} _]
-   (js/console.log local-storage)
-   (deep-merge {:db invdb/default-db} {:db local-storage})))
+   (if (s/conform :inversespace.db/db local-storage)
+     (assoc {:db invdb/default-db} :db local-storage)
+     {:db invdb/default-db})))
 
 
 (reg-event-db
