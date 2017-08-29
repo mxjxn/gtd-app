@@ -5,7 +5,7 @@
            ;[cljs.spec.gen.alpha :refer generate]
             ))
 
-; (s/def ::uuindex ...)
+(s/def ::uuid uuid?)
 (s/def ::index int?)
 (s/def ::title string?)
 (s/def ::done boolean?)
@@ -22,7 +22,7 @@
 (s/def ::project (s/keys :req-un [::title ::todos]))
 (s/def ::current-project int?) 
 (s/def ::projects (s/and
-                    (s/map-of ::index ::project)
+                    (s/coll-of ::project :kind vector?)
                     #(= "Collect" (:title (get % 0)))))
 (s/def ::collect (partial s/conform ::list))
 (s/def ::showing #{:all :active :done})
@@ -30,11 +30,11 @@
 (s/def ::db (s/keys :req-un [::projects ::showing]))
 
 (def default-db
-  {:projects {0 {:index 0 :title "Collect" 
+  {:projects [{:index 0 :title "Collect" 
                  :todos {0 {:index 0 :parent 0 :title "collect items here" :done true}
                          1 {:index 1 :parent 0 :title "delete or edit these ones" :done false}}}
-              1 {:index 1 :title "General" 
-                 :todos {0 {:index 0 :parent 1 :title "get stuff done" :done false}}}}
+              {:index 1 :title "General" 
+                 :todos {0 {:index 0 :parent 1 :title "get stuff done" :done false}}}]
    :current-project 0
    :name "max"
    ;TODO :profile {:name "max"}
