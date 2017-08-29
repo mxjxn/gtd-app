@@ -5,7 +5,6 @@
            ;[cljs.spec.gen.alpha :refer generate]
             ))
 
-; (s/def ::uuindex ...)
 (s/def ::index int?)
 (s/def ::title string?)
 (s/def ::done boolean?)
@@ -55,7 +54,7 @@
   :local-storage 
   (fn [cofx _] 
     (assoc cofx :local-storage
-           (into {}
+           (into (sorted-map)
            (some->> (.getItem js/localStorage ls-key)
                     (cljs.reader/read-string)
                     )))))
