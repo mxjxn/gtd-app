@@ -49,7 +49,6 @@
         :auto-focus true
         :on-focus #(-> % .-target .select)
         :on-blur #(stop)
-        :on-load #(println " utt")
         :value @value
         :on-change #(reset! value (-> % .-target .-value))
         :on-key-down #(case (.-which %)
@@ -59,21 +58,24 @@
      
 (defn todo-item []
   (let [editing (r/atom false)]
-    (fn [{:keys [title index parent done cl]}]
+    (fn [{:keys [title uuid pid done cl]}]
       [:li {:class cl}
        (when (false? @editing) 
          [:div.title 
-          [:input {:type :checkbox
-                   :on-change #(re-frame/dispatch [:item-completed (-> % .-target .-checked) parent index])
-                   :checked done}]
+          [:input.todo-check
+           {:type :checkbox
+            :on-change #(re-frame/dispatch 
+                          [:item-completed 
+                           (-> % .-target .-checked) pid uuid])
+            :checked done}]
           [:span
            {:on-double-click #(swap! editing not)} 
            title]])
        (when @editing 
          [todo-input 
-          { :title title 
-            :on-save #(re-frame/dispatch [:save-item % parent index])
-            :on-stop #(reset! editing false)}])])))
+          {:title title 
+           :on-save #(re-frame/dispatch [:save-item % pid uuid])
+           :on-stop #(reset! editing false)}])])))
 
 (defn button [{:keys [on-click label]}]
   [:button 
@@ -82,7 +84,7 @@
 
 (defn new-task-panel [{:keys [viewstate]}]
   (let [plist @(re-frame/subscribe [:project-list])
-        selected (int @(re-frame/subscribe [:current-project]))
+        cur-proj (int @(re-frame/subscribe [:current-project]))
         title (r/atom "new-todo")]
     (fn []
     [:div 
@@ -101,19 +103,22 @@
               :on-click #(reset! viewstate :project)}]
       ;create-button
       [button {:label "create"
-              :on-click #(do (re-frame/dispatch [:new-item @title selected]) 
-                             (reset! viewstate :project))}]
-    ])))
+              :on-click #(do (re-frame/dispatch [:new-item @title cur-proj]) 
+                             (reset! viewstate :project))}] ])))
 
 (defn project-todo-list []
   (let [ptasks (re-frame/subscribe [:project-tasks])]
     (fn []
       [:ul.project-list
-      (for [task @ptasks]
-        (let [taskmap (into (last task) 
-                            {:cl (if (even? (first task)) "even" "odd")})]
-        ^{:key (first task)}
-        [todo-item taskmap]))])))
+       (let [t-items (map-indexed
+                       (fn [i t]
+                           (merge t {:cl (if (even? i) "even" "odd") 
+                                     :uuid (:uuid t) 
+                                     :index i}))
+                       @ptasks)]
+          (for [task t-items]
+            ^{:key (:index task)}
+            [todo-item task]))])))
 
 (defn project-view [{:keys [viewstate]}]
   (let [project-index (re-frame/subscribe [:current-project])]

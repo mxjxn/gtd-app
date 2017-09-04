@@ -18,30 +18,21 @@
   :<- [:projects]
   :<- [:current-project]
   (fn [[projects current] _]
-    ;(cljs.pprint/pprint (get projects (int current)))
     (:todos (into {} (get projects (int current))))))
 
 (re-frame/reg-sub
   :project-list
   :<- [:projects]
   (fn [projects _]
-   (map 
-     #(hash-map 
-        :index (first %) 
-        :title (get (last %) :title)) 
+   (map-indexed 
+     #(let [index %1
+            {title :title} %2]
+        (hash-map 
+          :index index
+          :title title))
      projects)))
 
 (re-frame/reg-sub
   :name
   (fn [db _]
     (:name db)))
-
-(re-frame/reg-sub
-  :last-index
-  :<- [:project-tasks]
-  (fn [tasks]
-    (println 
-      (reduce #(if (> %1 %2) %1 %2)
-        (map #(-> % last :index) tasks)))
-      (reduce #(if (> %1 %2) %1 %2)
-        (map #(-> % last :index) tasks))))
