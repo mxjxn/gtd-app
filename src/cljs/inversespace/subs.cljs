@@ -18,7 +18,6 @@
   :<- [:projects]
   :<- [:current-project]
   (fn [[projects current] _]
-    ;(cljs.pprint/pprint (get projects (int current)))
     (:todos (into {} (get projects (int current))))))
 
 (re-frame/reg-sub

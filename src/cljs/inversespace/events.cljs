@@ -13,10 +13,9 @@
 
 (def ->local-store (after invdb/todos->local-store))
 
-(defn deep-merge
-  [& maps]
-  (if (every? map? maps)
-    (apply merge-with deep-merge maps)
+(defn deep-map-merge [& maps] 
+  (if (every? map? maps) 
+    (apply merge-with deep-map-merge maps) 
     (last maps)))
 
 (reg-event-fx
@@ -24,8 +23,7 @@
   [(inject-cofx :local-storage)
    check-spec-interceptor]
  (fn [{:keys [db local-storage]} _]
-   (js/console.log local-storage)
-   (deep-merge {:db invdb/default-db} {:db local-storage})))
+   {:db invdb/default-db}))
 
 
 (reg-event-db
@@ -38,15 +36,15 @@
   :new-item
   [check-spec-interceptor trim-v ->local-store]
   (fn [db [title project-id]]
-    (let [tasks (-> db :projects (get project-id) :todos)
-          new-id (inc
-                   (reduce #(if (> %1 %2) %1 %2)
-                    (map #(-> % last :index) tasks)))
-          new-id (if (int? new-id) new-id 0)] 
-      (assoc-in db 
-                [:projects project-id :todos new-id] 
-                (invdb/new-task title new-id project-id)))))
-       
+    (let [tasks (-> db 
+                    :projects 
+                    (get project-id) 
+                    :todos)
+          new-task (invdb/new-task title (random-uuid) project-id) ]
+      (assoc-in 
+        db 
+        [:projects project-id :todos] 
+        (conj tasks new-task))))) 
 
 (reg-event-db
   :item-completed
@@ -61,25 +59,14 @@
     (let [id (int project-id)
           tasks (-> db :projects (get id) :todos)]
       (->> tasks
-           
-        (filter #(:done (last %)))
+        (filter #(false? (:done %)))
         (vec)
-        (map #(first %))
-        (apply dissoc tasks)
-        (into {})
-        (assoc-in db [:projects id :todos])
-        ; ALTERNATE SOLUTION? ... RE-INDEXING IS FLAWED
-        ;(filter #(false? (:done (last %))))
-        ;(map-indexed (fn [idx data] [idx (last data)])) 
-        ;(into {})
-        ;(assoc-in db [:projects id :todos])
-        ; OR...  Better to use update-in somehow?
-           ))))
-    
+        (assoc-in db [:projects id :todos])))))
+
 (reg-event-db
   :save-item
   [check-spec-interceptor trim-v ->local-store]
-  (fn [db [title project-id task-id]]
-    (println "saving..."
-      (assoc-in db [:projects project-id :todos task-id :title] title))
-    (assoc-in db [:projects project-id :todos task-id :title] title)))
+  (fn [db [title p-id t-id]]
+    (let [p-idx (invdb/p-index-by-uuid db p-id)
+          t-idx (invdb/t-index-by-uuid db p-id t-id)]
+    (assoc-in db [:projects p-idx :todos t-idx :title] title))))
