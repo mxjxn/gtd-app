@@ -23,9 +23,7 @@
   [(inject-cofx :local-storage)
    check-spec-interceptor]
  (fn [{:keys [db local-storage]} _]
-   (if (s/conform :inversespace.db/db local-storage)
-     (assoc {:db invdb/default-db} :db local-storage)
-     {:db invdb/default-db})))
+     {:db invdb/default-db}))
 
 
 (reg-event-db
@@ -51,8 +49,10 @@
 (reg-event-db
   :item-completed
   [check-spec-interceptor trim-v ->local-store]
-  (fn [db [checked project-id task-id]]
-    (assoc-in db [:projects project-id :todos task-id :done] checked)))
+  (fn [db [checked p-id t-id]]
+    (let [p-idx (invdb/p-index-by-uuid db p-id)
+          t-idx (invdb/t-index-by-uuid db p-id t-id)]
+    (assoc-in db [:projects p-idx :todos t-idx :done] checked))))
 
 (reg-event-db
   :clear-completed
@@ -71,4 +71,6 @@
   (fn [db [title p-id t-id]]
     (let [p-idx (invdb/p-index-by-uuid db p-id)
           t-idx (invdb/t-index-by-uuid db p-id t-id)]
+      (println "p-id: " p-id ", t-id: " t-id)
+      (println "p: " p-idx ", t: " t-idx)
     (assoc-in db [:projects p-idx :todos t-idx :title] title))))

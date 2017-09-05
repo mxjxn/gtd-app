@@ -64,9 +64,10 @@
          [:div.title 
           [:input.todo-check
            {:type :checkbox
-            :on-change #(re-frame/dispatch 
-                          [:item-completed 
-                           (-> % .-target .-checked) pid uuid])
+            :on-change #(do (println "check! " pid uuid)
+                          (re-frame/dispatch 
+                            [:item-completed 
+                             (-> % .-target .-checked) pid uuid]))
             :checked done}]
           [:span
            {:on-double-click #(swap! editing not)} 
