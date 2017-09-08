@@ -29,21 +29,19 @@
 (reg-event-db
   :change-project
   [check-spec-interceptor trim-v]
-  (fn [db [project-num]]
-    (assoc db :current-project project-num)))
+  (fn [db [p-uuid]]
+    (assoc db :current-project p-uuid)))
 
 (reg-event-db
   :new-item
   [check-spec-interceptor trim-v ->local-store]
-  (fn [db [title project-id]]
-    (let [tasks (-> db 
-                    :projects 
-                    (get project-id) 
-                    :todos)
-          new-task (invdb/new-task title (random-uuid) project-id) ]
+  (fn [db [title p-uuid]]
+    (let [p-idx (invdb/p-index-by-uuid db p-uuid) 
+          tasks (-> db :projects (get p-idx) :todos)
+          new-task (invdb/new-task title (random-uuid) p-uuid) ]
       (assoc-in 
         db 
-        [:projects project-id :todos] 
+        [:projects p-idx :todos] 
         (conj tasks new-task))))) 
 
 (reg-event-db
@@ -57,8 +55,8 @@
 (reg-event-db
   :clear-completed
   [check-spec-interceptor trim-v ->local-store]
-  (fn [db [project-id]]
-    (let [id (int project-id)
+  (fn [db [p-uuid]]
+    (let [id (int (invdb/p-index-by-uuid db p-uuid))
           tasks (-> db :projects (get id) :todos)]
       (->> tasks
         (filter #(false? (:done %)))
@@ -71,6 +69,4 @@
   (fn [db [title p-id t-id]]
     (let [p-idx (invdb/p-index-by-uuid db p-id)
           t-idx (invdb/t-index-by-uuid db p-id t-id)]
-      (println "p-id: " p-id ", t-id: " t-id)
-      (println "p: " p-idx ", t: " t-idx)
     (assoc-in db [:projects p-idx :todos t-idx :title] title))))

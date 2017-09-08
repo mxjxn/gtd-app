@@ -21,7 +21,7 @@
                    (s/keys :req-un [::index ::title ::list])
                    #(= (:index %) 0)))
 (s/def ::project (s/keys :req-un [::uuid ::title ::todos]))
-(s/def ::current-project int?) 
+(s/def ::current-project ::uuid) 
 (s/def ::projects (s/and
                     (s/coll-of ::project :kind vector?)
                     #(= "Collect" (:title (get % 0)))))
@@ -38,7 +38,7 @@
                          {:uuid (random-uuid) :title "delete or edit these ones" :done false :pid uu1}]}
               {:uuid uu2 :title "General" 
                  :todos [{:uuid (random-uuid) :title "get stuff done" :done false :pid uu2}]}]
-   :current-project 0
+   :current-project uu2
    :name "max"
    ;TODO :profile {:name "max"}
    :showing :all}))
@@ -72,7 +72,8 @@
           (recur (rest uvec) (inc i))))))
   
 
-(defn p-index-by-uuid [a-db uid]
+(defn p-index-by-uuid 
+  [a-db uid]
   (get-index-by-uuid (:projects a-db) uid))
 
 (defn t-index-by-uuid [a-db pid uid]

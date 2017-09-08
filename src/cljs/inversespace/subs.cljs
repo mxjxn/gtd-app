@@ -1,7 +1,7 @@
 (ns inversespace.subs
   (:require-macros [reagent.ratom :refer [reaction]])
   (:require [re-frame.core :as re-frame]
-            [inversespace.db :as inv-db]))
+            [inversespace.db :as invdb]))
 
 (re-frame/reg-sub
   :projects
@@ -15,10 +15,11 @@
 
 (re-frame/reg-sub
   :project-tasks
-  :<- [:projects]
-  :<- [:current-project]
-  (fn [[projects current] _]
-    (:todos (into {} (get projects (int current))))))
+  (fn [db _]
+    (let [{projects :projects
+           current :current-project} db
+          idx (invdb/p-index-by-uuid db current)]
+      (:todos (into {} (get projects idx))))))
 
 (re-frame/reg-sub
   :project-list
@@ -26,9 +27,10 @@
   (fn [projects _]
    (map-indexed 
      #(let [index %1
-            {title :title} %2]
+            {:keys [title uuid]} %2]
         (hash-map 
           :index index
+          :uuid uuid
           :title title))
      projects)))
 
