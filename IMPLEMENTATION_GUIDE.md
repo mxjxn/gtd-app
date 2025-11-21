@@ -586,9 +586,11 @@ jobs:
 
 ---
 
-## 📦 Package.json for Modern Tooling
+## 📦 Optional: Modern Tooling with shadow-cljs
 
-Consider migrating to shadow-cljs for better developer experience:
+**Note**: The current Leiningen + Figwheel setup works well. This section describes an optional migration to shadow-cljs for teams that prefer npm-based workflows and better JavaScript interop. This is **not required** for the improvements in this guide.
+
+If you want to explore shadow-cljs as an alternative:
 
 **File**: `package.json`
 
@@ -611,6 +613,11 @@ Consider migrating to shadow-cljs for better developer experience:
   }
 }
 ```
+
+**Pros**: Better npm integration, faster builds, easier JS library usage
+**Cons**: Migration effort, need to learn new tool
+
+**Recommendation**: Stick with Leiningen for now unless you have specific needs for shadow-cljs.
 
 ---
 

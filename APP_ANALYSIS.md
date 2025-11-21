@@ -396,7 +396,7 @@ This project provides excellent opportunities to learn:
 4. **Performance**: Large lists will need virtualization
 5. **State shape**: Consider normalization for relational data
 6. **No migrations**: Need schema versioning for local storage
-7. **Build setup**: Migrate to shadow-cljs for better DX
+7. **Build setup**: Current Leiningen/Figwheel works well; shadow-cljs is an optional future improvement for better JavaScript tooling integration
 
 ---
 
