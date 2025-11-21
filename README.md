@@ -42,9 +42,12 @@ lein cljsbuild once min
 
 ## 📚 Documentation
 
+New to the project? Check the **[NAVIGATION.md](./NAVIGATION.md)** guide to find the right document for you!
+
 - **[APP_ANALYSIS.md](./APP_ANALYSIS.md)** - Comprehensive state assessment with tiered improvement roadmap (Basic → Advanced → Amazing)
 - **[IMPLEMENTATION_GUIDE.md](./IMPLEMENTATION_GUIDE.md)** - Step-by-step guide for implementing quick wins and foundational improvements
 - **[PROJECT_IDEAS.md](./PROJECT_IDEAS.md)** - Curated project ideas organized by skill level (Beginner → Intermediate → Advanced → Expert)
+- **[QUICK_REFERENCE.md](./QUICK_REFERENCE.md)** - Developer cheat sheet for daily reference
 
 ## 🎯 Improvement Roadmap
 
