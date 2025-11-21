@@ -213,7 +213,7 @@ This is a ClojureScript-based todo application built with **re-frame** (React + 
 - Touch-optimized interactions
 - Progressive Web App (PWA)
 - Mobile-first quick capture
-- Native mobile apps (React Native or ClojureScript)
+- Native mobile apps (React Native with ClojureScript via Krell)
 
 #### 3.4 Advanced UI
 - **Priority**: MEDIUM

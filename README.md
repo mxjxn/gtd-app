@@ -1,6 +1,6 @@
 # GTD-Todo
 
-A [re-frame](https://github.com/Day8/re-frame) todo application implementing the workflow from David Allen's [Getting Things Done](http://gettingthingsdone.com/) methodology.
+A [re-frame](https://github.com/Day8/re-frame) todo application implementing the workflow from David Allen's [Getting Things Done](https://gettingthingsdone.com/) methodology.
 
 ## 📋 Current Status
 
